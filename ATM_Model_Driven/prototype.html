@@ -1,0 +1,190 @@
+<html lang="en"><head></head><body><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .atm-container {
+            width: 360px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .atm-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .atm-header h1 {
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .action-buttons button {
+            width: 48%;
+            padding: 10px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .action-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .output-area {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+    </style>
+
+
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>ATM System</h1>
+        </div>
+        <form id="login-form" style="display: block;">
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" id="cardNumber" required="">
+            </div>
+            <div class="form-group">
+                <label for="pin">PIN</label>
+                <input type="password" id="pin" required="">
+            </div>
+            <div class="form-group action-buttons">
+                <button type="submit">Login</button>
+                <button type="button" onclick="ejectCard()">Cancel</button>
+            </div>
+        </form>
+        <div id="account-actions" style="display: none;">
+            <div class="form-group">
+                <label for="transactionType">Select Transaction</label>
+                <select id="transactionType" onchange="selectTransaction()">
+                    <option value="">-- Select --</option>
+                    <option value="viewBalance">View Balance</option>
+                    <option value="withdraw">Withdraw</option>
+                    <option value="deposit">Deposit</option>
+                    <option value="transfer">Transfer</option>
+                </select>
+            </div>
+            <div id="transaction-inputs" class="form-group" style="display: none;">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" min="0">
+                <div id="transfer-field" style="display: block;">
+                    <label for="targetAccount">Target Account Number</label>
+                    <input type="text" id="targetAccount">
+                </div>
+            </div>
+            <div class="form-group action-buttons">
+                <button type="button" onclick="processTransaction()">Submit</button>
+                <button type="button" onclick="ejectCard()">Cancel</button>
+            </div>
+        </div>
+        <div class="output-area" id="output">Card ejected. Please take your card.</div>
+    </div>
+
+    <script>
+        function login(event) {
+            event.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('account-actions').style.display = 'block';
+            showMessage('Logged in successfully. Select a transaction.');
+        }
+        
+        function selectTransaction() {
+            const transactionType = document.getElementById('transactionType').value;
+            const transactionInputs = document.getElementById('transaction-inputs');
+            const transferField = document.getElementById('transfer-field');
+            if (transactionType === 'withdraw' || transactionType === 'deposit') {
+                transactionInputs.style.display = 'block';
+                transferField.style.display = 'none';
+            } else if (transactionType === 'transfer') {
+                transactionInputs.style.display = 'block';
+                transferField.style.display = 'block';
+            } else {
+                transactionInputs.style.display = 'none';
+            }
+        }
+
+        function processTransaction() {
+            const transactionType = document.getElementById('transactionType').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const targetAccount = document.getElementById('targetAccount').value;
+
+            let message = '';
+            switch (transactionType) {
+                case 'viewBalance':
+                    message = 'Your balance is $X.XX';
+                    break;
+                case 'withdraw':
+                    if (amount > 0) {
+                        message = `Withdrawing $${amount.toFixed(2)}... Transaction successful.`;
+                    } else {
+                        message = 'Enter a valid amount.';
+                    }
+                    break;
+                case 'deposit':
+                    if (amount > 0) {
+                        message = `Depositing $${amount.toFixed(2)}... Transaction successful.`;
+                    } else {
+                        message = 'Enter a valid amount.';
+                    }
+                    break;
+                case 'transfer':
+                    if (amount > 0 && targetAccount) {
+                        message = `Transferring $${amount.toFixed(2)} to account ${targetAccount}... Transaction successful.`;
+                    } else {
+                        message = 'Enter valid amount and account number.';
+                    }
+                    break;
+                default:
+                    message = 'Select a transaction type.';
+            }
+
+            showMessage(message);
+        }
+
+        function ejectCard() {
+            document.getElementById('login-form').reset();
+            document.getElementById('account-actions').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('transaction-inputs').style.display = 'none';
+            document.getElementById('transactionType').value = '';
+            showMessage('Card ejected. Please take your card.');
+        }
+
+        function showMessage(message) {
+            document.getElementById('output').innerText = message;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', login);
+    </script></body></html>
